@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="彼得・C・奧本海默《高盛首席分析師教你看懂進場的訊號》四階段市場週期學習指南。">
+  <title>四階段市場週期指南｜彼得・C・奧本海默</title>
+  <style>
+    :root { --ink:#172033; --muted:#5b6472; --paper:#fffdf8; --surface:#ffffff; --line:#e5e7eb; --navy:#12355b; --blue:#2563eb; --green:#15803d; --amber:#b45309; --red:#b91c1c; --violet:#6d28d9; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:#f4f7fb; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif; line-height:1.75; }
+    .hero { color:#fff; background:linear-gradient(135deg,#102a43,#1d4e89 55%,#2563eb); padding:72px 22px 58px; }
+    .wrap { max-width:1060px; margin:auto; }
+    h1 { font-size:clamp(2rem,5vw,3.5rem); line-height:1.22; margin:0 0 16px; }
+    .subtitle { max-width:760px; font-size:1.13rem; margin:0; opacity:.93; }
+    .badge { display:inline-block; margin-bottom:14px; padding:5px 11px; border:1px solid rgba(255,255,255,.45); border-radius:999px; font-size:.88rem; }
+    nav { background:rgba(255,255,255,.97); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5; }
+    nav .wrap { display:flex; gap:18px; overflow-x:auto; padding:12px 22px; white-space:nowrap; }
+    nav a { color:var(--navy); text-decoration:none; font-weight:700; font-size:.94rem; }
+    main { padding:34px 22px 60px; }
+    section { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:28px; margin:0 0 24px; box-shadow:0 4px 16px rgba(15,23,42,.04); }
+    h2 { margin:0 0 12px; color:var(--navy); font-size:1.65rem; line-height:1.35; }
+    h3 { margin:27px 0 8px; color:#1e3a5f; font-size:1.18rem; }
+    p { margin:8px 0 14px; }
+    .lead { font-size:1.12rem; }
+    .note { border-left:4px solid var(--blue); background:#eff6ff; padding:14px 16px; border-radius:8px; }
+    .warning { border-left:4px solid var(--amber); background:#fffbeb; padding:14px 16px; border-radius:8px; }
+    .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:18px; }
+    .card { border:1px solid var(--line); border-top:5px solid var(--blue); border-radius:12px; padding:16px; background:#fff; }
+    .card h3 { margin:0 0 7px; }
+    .card.despair { border-top-color:var(--red); }.card.hope { border-top-color:var(--green); }.card.growth { border-top-color:var(--blue); }.card.optimism { border-top-color:var(--violet); }
+    .cycle { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; padding:20px 4px 4px; font-weight:800; }
+    .step { border-radius:999px; padding:9px 14px; color:#fff; }.s1{background:var(--red)} .s2{background:var(--green)} .s3{background:var(--blue)} .s4{background:var(--violet)} .arrow{color:var(--muted);font-size:1.35rem}
+    table { border-collapse:collapse; width:100%; margin:14px 0; font-size:.95rem; overflow:hidden; border-radius:10px; }
+    th,td { border:1px solid var(--line); padding:11px; text-align:left; vertical-align:top; }
+    th { background:#eff6ff; color:var(--navy); }
+    ul,ol { margin:8px 0 14px; padding-left:1.3em; }
+    li { margin:5px 0; }
+    code { background:#f1f5f9; padding:2px 5px; border-radius:4px; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .formula { display:block; margin:10px 0; padding:12px; border-radius:8px; background:#f8fafc; border:1px solid var(--line); font-family:ui-monospace,SFMono-Regular,Consolas,monospace; overflow-x:auto; }
+    .small { color:var(--muted); font-size:.92rem; }
+    footer { padding:32px 22px 48px; color:var(--muted); text-align:center; font-size:.9rem; }
+    @media (max-width:820px) { .cards { grid-template-columns:repeat(2,1fr); } section { padding:21px; } }
+    @media (max-width:520px) { .cards { grid-template-columns:1fr; } table { font-size:.86rem; } th,td { padding:8px; } }
+    @media print { body{background:#fff}.hero{padding:35px 20px}nav{display:none}main{padding:20px}section{box-shadow:none;break-inside:avoid} }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <span class="badge">高中生也能理解的投資學習筆記</span>
+      <h1>四階段市場週期指南</h1>
+      <p class="subtitle">依彼得・C・奧本海默《高盛首席分析師教你看懂進場的訊號》（The Long Good Buy）的觀點，認識市場的絕望、希望、成長與樂觀，並學會以估值、獲利、技術面與風格指數交叉觀察。</p>
+    </div>
+  </header>
+  <nav><div class="wrap"><a href="#cycle">四階段</a><a href="#signals">觀察訊號</a><a href="#msci">MSCI 風格</a><a href="#taiwan-us">台股與美股</a><a href="#workflow">實作流程</a><a href="#risk">重要提醒</a></div></nav>
+  <main class="wrap">
+    <section id="cycle">
+      <h2>市場會循環，但不會照表操課</h2>
+      <p class="lead">奧本海默將股票市場分成四個階段。重點不是精準預言「明天漲或跌」，而是判斷：目前股價主要是由<strong>估值變動</strong>還是<strong>企業獲利變動</strong>推動，以及投資人的情緒正在轉向何處。</p>
+      <div class="cycle"><span class="step s1">1. 絕望</span><span class="arrow">→</span><span class="step s2">2. 希望</span><span class="arrow">→</span><span class="step s3">3. 成長</span><span class="arrow">→</span><span class="step s4">4. 樂觀</span><span class="arrow">→</span><span class="step s1">絕望</span></div>
+      <div class="cards">
+        <article class="card despair"><h3>1. 絕望 Despair</h3><p>熊市，由高點走向低點。恐懼升高、估值下修，市場先反映未來的壞消息。</p></article>
+        <article class="card hope"><h3>2. 希望 Hope</h3><p>低點後反彈。經濟與獲利數據可能仍弱，但市場開始相信「最壞情況已過」。</p></article>
+        <article class="card growth"><h3>3. 成長 Growth</h3><p>企業獲利真正改善，股價較健康地上漲；通常是週期中較長的一段。</p></article>
+        <article class="card optimism"><h3>4. 樂觀 Optimism</h3><p>投資人高度自信，估值擴張速度可能快於獲利；須警覺過熱與風險累積。</p></article>
+      </div>
+    </section>
+
+    <section>
+      <h2>四階段怎麼理解？</h2>
+      <table>
+        <thead><tr><th>階段</th><th>股價與估值</th><th>企業獲利與經濟</th><th>常見情緒</th><th>學習上的重點</th></tr></thead>
+        <tbody>
+          <tr><td><strong>絕望</strong></td><td>股價下跌，本益比常縮減</td><td>市場預期獲利將變差；經濟可能放緩或衰退</td><td>恐慌、悲觀</td><td>不要把「下跌」直接當作「公司永遠不好」；開始建立觀察名單，採分批思考。</td></tr>
+          <tr><td><strong>希望</strong></td><td>從低點回升，本益比往往修復</td><td>獲利可能仍低迷，但下修速度放慢，未來預期改善</td><td>謹慎期待</td><td>市場通常領先經濟數據；留意反彈是否有廣度與成交量支持。</td></tr>
+          <tr><td><strong>成長</strong></td><td>股價穩定走高，估值未必明顯擴張</td><td>營收、EPS 與景氣實際改善</td><td>信心增加</td><td>確認漲勢是否有獲利支撐；避免只因題材而忽略基本面。</td></tr>
+          <tr><td><strong>樂觀</strong></td><td>股價快速上漲，估值可能偏高</td><td>獲利仍可能成長，但未必追得上估值</td><td>興奮、FOMO、過度自信</td><td>檢查高估值是否合理；建立風險控管與減碼規則，不追逐最後一段漲幅。</td></tr>
+        </tbody>
+      </table>
+      <p class="note"><strong>簡單比喻：</strong>股市像看電影預告片。股價常先根據「未來劇情」變動；因此希望階段時，現實數據可能還很差，但市場已經先上漲。</p>
+    </section>
+
+    <section id="signals">
+      <h2>觀察市場的工具箱</h2>
+      <p>沒有任何單一技術指標能準確宣告某個階段開始或結束。比較好的做法是同時檢查：<strong>價格趨勢、成交量、估值、獲利預期、經濟資料與市場情緒</strong>。</p>
+      <table>
+        <thead><tr><th>工具</th><th>用途</th><th>可觀察的訊號</th><th>不要誤用</th></tr></thead>
+        <tbody>
+          <tr><td>50 日、200 日移動平均線</td><td>判斷中長期趨勢</td><td>股價站上或跌破均線；均線上彎或下彎；50 日與 200 日均線的相對位置</td><td>均線是落後指標，不保證買在最低或賣在最高。</td></tr>
+          <tr><td>RSI</td><td>觀察短期強弱與超買／超賣</td><td>常見參考：低於 30 為超賣區、高於 70 為超買區</td><td>RSI 過高可以持續很久；不可單獨作為放空或買進理由。</td></tr>
+          <tr><td>MACD</td><td>觀察動能與趨勢轉變</td><td>MACD 線上穿訊號線可視為動能轉強的參考；下穿則為轉弱參考</td><td>盤整市容易出現假訊號，須搭配趨勢與成交量。</td></tr>
+          <tr><td>成交量</td><td>確認買賣力量</td><td>上漲搭配量增較有確認性；高檔大量但不漲，可能顯示賣壓增加</td><td>單日爆量不等於必然見頂或見底。</td></tr>
+          <tr><td>市場廣度</td><td>確認漲勢是否由多數股票共同參與</td><td>上漲家數／下跌家數、創新高家數、站上 200 日均線股票比例</td><td>大盤可由少數權值股帶動，因此不能只看指數點位。</td></tr>
+          <tr><td>本益比與預期 EPS</td><td>區分估值驅動或獲利驅動</td><td>本益比快速升但 EPS 預估未改善，留意樂觀風險；EPS 上修且估值穩定，較接近成長型環境</td><td>不同產業的合理本益比不同，不宜直接橫向比較。</td></tr>
+        </tbody>
+      </table>
+      <h3>按階段的觀察重點</h3>
+      <table>
+        <thead><tr><th>階段</th><th>優先看什麼</th><th>可能的組合訊號</th></tr></thead>
+        <tbody>
+          <tr><td>絕望</td><td>估值下修是否接近極端、RSI、恐慌成交量、獲利預期是否仍大幅下修</td><td>股價仍弱，但跌勢縮小、爆量後不再破底、壞消息對股價的傷害變小。</td></tr>
+          <tr><td>希望</td><td>趨勢止跌、成交量、EPS 下修是否放慢、信用與景氣領先資料</td><td>股價重回中期均線、MACD 改善、上漲日量能較佳、市場廣度開始擴大。</td></tr>
+          <tr><td>成長</td><td>營收、EPS 上修、均線多頭排列、市場廣度</td><td>股價在 50／200 日均線之上，獲利預期持續上修，更多類股參與上漲。</td></tr>
+          <tr><td>樂觀</td><td>本益比、RSI、領漲股集中度、利率與信用風險</td><td>價格遠離長期均線、高估值、少數熱門股撐盤、利多消息不再推動股價。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="msci">
+      <h2>MSCI 成長型與價值型</h2>
+      <p>MSCI 的成長型（Growth）與價值型（Value）並不是「好公司」與「壞公司」的分類，而是依照公司<strong>估值特徵</strong>與<strong>成長特徵</strong>所做的風格分類。一家公司也可能同時具有兩種特徵，因此指數方法會用多個變數綜合判定。</p>
+      <table>
+        <thead><tr><th>風格</th><th>主要變數</th><th>白話說明</th><th>可用來問的問題</th></tr></thead>
+        <tbody>
+          <tr><td><strong>價值型</strong></td><td>BV/P（股價淨值比的倒數）、預期 E/P（預期本益比的倒數）、D/P（股利殖利率）</td><td>相對公司帳面價值、預期獲利或股利，現在股價是否較便宜？</td><td>低估值是因市場過度悲觀，還是公司基本面確實惡化？</td></tr>
+          <tr><td><strong>成長型</strong></td><td>長短期預期 EPS 成長、內部成長率、歷史 EPS 成長、每股營收成長</td><td>公司是否能把營收與獲利持續做大？</td><td>高成長能否兌現？目前股價是否已把很高的期待算進去？</td></tr>
+        </tbody>
+      </table>
+      <h3>常用公式</h3>
+      <span class="formula">BV/P = 每股淨值 ÷ 股價</span>
+      <span class="formula">預期 E/P = 未來 12 個月預期每股盈餘 ÷ 股價 = 預期本益比的倒數</span>
+      <span class="formula">D/P = 每股現金股利 ÷ 股價（即殖利率）</span>
+      <span class="formula">內部成長率 g ≈ ROE × (1 − 配息率)</span>
+      <p class="small">例：一家公司每股淨值為 50 元、股價為 100 元，則 BV/P = 0.5。若股價下降而淨值不變，BV/P 上升，代表它相對帳面價值變便宜；但仍要確認淨值品質與公司前景。</p>
+      <h3>如何把風格指數用在週期判斷？</h3>
+      <ol>
+        <li>追蹤 <strong>MSCI Growth ÷ MSCI Value</strong> 的相對走勢，而不是只看兩個指數各自上漲或下跌。</li>
+        <li>比值上升表示成長風格相對強；比值下降表示價值風格相對強。</li>
+        <li>再搭配利率、通膨、景氣、EPS 修正與估值，判斷這種風格輪動是否合理。</li>
+        <li>不要把「價值勝過成長」直接等同某一個固定市場階段；利率、產業結構與市場預期都可能改變結果。</li>
+      </ol>
+      <p class="warning"><strong>關鍵提醒：</strong>價值股不必然會反彈，成長股也不必然泡沫化。風格分類是用來理解「市場正在偏好什麼」，不是自動選股機器。</p>
+    </section>
+
+    <section id="taiwan-us">
+      <h2>台股與美股都能用嗎？</h2>
+      <p>可以把四階段模型當成共同語言，應用於台股與美股；因為估值、獲利與投資人情緒的循環在兩地都存在。但它最初主要以美國與成熟市場的長期資料為背景，因此不能把美國的平均時間或報酬率直接套用到台灣。</p>
+      <table>
+        <thead><tr><th>面向</th><th>美股觀察重點</th><th>台股額外需要觀察</th></tr></thead>
+        <tbody>
+          <tr><td>總體環境</td><td>聯準會利率、通膨、就業、企業獲利與信用環境</td><td>除全球利率外，亦關注出口接單、製造業景氣、匯率與全球電子需求。</td></tr>
+          <tr><td>市場結構</td><td>可觀察 S&amp;P 500、NASDAQ、Russell 風格指數與市場廣度</td><td>加權指數受大型電子權值股影響顯著；大盤上漲不一定代表多數台股同步強勢。</td></tr>
+          <tr><td>外部連動</td><td>美國本身是全球資金與景氣的重要來源</td><td>需加看 S&amp;P 500、NASDAQ、費城半導體指數、外資買賣超與美元走勢。</td></tr>
+          <tr><td>產業循環</td><td>科技、金融、消費、能源等產業較分散</td><td>半導體與電子供應鏈權重高，庫存週期、資本支出與終端需求尤為重要。</td></tr>
+          <tr><td>特有風險</td><td>政策、利率、財政與估值風險</td><td>另有地緣政治、外資流動與出口集中度等可能放大波動的因素。</td></tr>
+        </tbody>
+      </table>
+      <p class="note"><strong>實務做法：</strong>判讀台股階段時，不要只看加權指數；至少同時查看台股的獲利預期與估值、外資流向、半導體景氣，以及美國科技與半導體市場的趨勢。</p>
+    </section>
+
+    <section id="workflow">
+      <h2>每月一次的實作流程</h2>
+      <p>以下是一套適合初學者的「市場週期儀表板」。重點是長期、固定頻率地記錄，避免因為單日新聞而頻繁改變結論。</p>
+      <ol>
+        <li><strong>看趨勢：</strong>記錄台灣加權指數、S&amp;P 500、NASDAQ、費城半導體指數是否位於 50 日與 200 日均線上方。</li>
+        <li><strong>看獲利：</strong>觀察市場對未來 12 個月 EPS 的預估是上修、持平，還是下修。</li>
+        <li><strong>看估值：</strong>把目前本益比與自己設定的歷史區間比較，並看其變動是否快過 EPS。</li>
+        <li><strong>看廣度與量能：</strong>上漲是否只有少數權值股帶動？上漲日是否相對有量？</li>
+        <li><strong>看風格：</strong>觀察成長型相對價值型的表現，再追問背後是否由利率、獲利或題材推動。</li>
+        <li><strong>寫下假設：</strong>例如「目前偏成長階段，因為 EPS 上修、均線向上、廣度改善」。下個月再驗證，而不是把看法當事實。</li>
+      </ol>
+      <h3>簡易判讀範例</h3>
+      <p>假設指數重新站上 200 日均線、50 日均線開始上彎、上漲股票家數增加，而預期 EPS 的下修幅度縮小；即使經濟新聞仍偏弱，這一組訊號較接近「<strong>絕望正在轉向希望</strong>」。反過來說，若指數創高但只有少數熱門股上漲、本益比快速升高且 EPS 預估未改善，便要警覺「<strong>樂觀階段的過熱</strong>」。</p>
+    </section>
+
+    <section id="risk">
+      <h2>重要風險與免責聲明</h2>
+      <ul>
+        <li>四階段模型是分析框架，不是預測公式；市場可能跳過、延長或重複某些階段。</li>
+        <li>技術指標、估值與經濟數據都可能給出相互矛盾的訊號，應以「多項證據一致」提高判斷品質。</li>
+        <li>本益比不適合直接用於虧損公司；金融、半導體、成熟產業與高成長公司也不宜用同一套估值標準。</li>
+        <li>任何投資都可能虧損。本文僅供教育與研究用途，不構成投資建議、招攬或保證報酬。</li>
+        <li>若要實際投資，請考量自己的目標、資金期限、風險承受能力與分散配置，必要時諮詢合格專業人士。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>延伸閱讀與資料</h2>
+      <ul>
+        <li>Peter C. Oppenheimer，《The Long Good Buy: Analysing Cycles in Markets》；中文版《高盛首席分析師教你看懂進場的訊號：洞悉市場週期，贏在長期好買賣》。</li>
+        <li>MSCI，Value and Growth Indexes 與 Global Investable Market Value and Growth Index Methodology（了解成長／價值風格變數與指數建構方式）。</li>
+        <li>台灣證券交易所公開市場資料（台灣加權指數、類股與個股資料）。</li>
+        <li>美國主要市場指數資料（S&amp;P 500、NASDAQ、Russell、費城半導體指數）及企業財報、分析師獲利預估資料。</li>
+      </ul>
+      <p class="small">發布前建議：請自行再次核對書中頁碼、指數方法學版本與欲引用的歷史數字；本頁著重提供概念性、教育性的整理。</p>
+    </section>
+  </main>
+  <footer>製作日期：2026 年 8 月｜可直接儲存為 .html 後以瀏覽器開啟、列印為 PDF，或部署至 GitHub Pages、Netlify 等靜態網站服務。</footer>
+</body>
+</html>
