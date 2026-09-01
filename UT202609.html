@@ -3,166 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美台總體經濟與資金流向圖解分析</title>
+    <title>美台總體經濟與即時匯率監測看板</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased pb-12">
 
+    <!-- Header & 即時時間戳記 -->
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-3">
             <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                美台總體經濟與資本流向互動圖解
+                美台總體經濟與資本流向即時監測
             </h1>
-            <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">單檔獨立頁面</span>
+            
+            <!-- 時間戳記與手動更新按鈕 -->
+            <div class="flex items-center gap-3 bg-slate-800/80 px-4 py-1.5 rounded-full border border-slate-700">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="update-timestamp" class="text-xs text-slate-300 font-mono">
+                    資料更新時間：載入中...
+                </span>
+                <button onclick="loadLiveData()" class="ml-2 text-xs bg-slate-700 hover:bg-slate-600 text-blue-300 px-2.5 py-1 rounded transition flex items-center gap-1">
+                    <i id="refresh-icon" class="fa-solid fa-rotate"></i> 更新
+                </button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-slate-900/60 border border-blue-500/30 rounded-xl p-6 shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2">
-                        <i class="fa-solid me-2 fa-flag-usa"></i>美國經濟體 (USA)
-                    </h2>
-                    <span class="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded">高利率環境</span>
-                </div>
-                <ul class="space-y-3 text-sm text-slate-300">
-                    <li class="flex justify-between border-b border-slate-800 pb-2">
-                        <span><i class="fa-solid fa-arrow-trend-up text-red-400 mr-2"></i>CPI 通膨壓力：</span>
-                        <span class="font-semibold text-slate-100">較高 / 降幅趨緩</span>
-                    </li>
-                    <li class="flex justify-between border-b border-slate-800 pb-2">
-                        <span><i class="fa-solid fa-building-columns text-blue-400 mr-2"></i>聯準會政策利率：</span>
-                        <span class="font-semibold text-blue-300">維持高檔水準</span>
-                    </li>
-                    <li class="flex justify-between">
-                        <span><i class="fa-solid fa-money-bill-trend-up text-emerald-400 mr-2"></i>美元指數 (DXY)：</span>
-                        <span class="font-semibold text-emerald-400">相對強勢 (吸金)</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="bg-slate-900/60 border border-emerald-500/30 rounded-xl p-6 shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
-                        <i class="fa-solid me-2 fa-location-dot"></i>臺灣經濟體 (Taiwan)
-                    </h2>
-                    <span class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded">溫和緊縮</span>
-                </div>
-                <ul class="space-y-3 text-sm text-slate-300">
-                    <li class="flex justify-between border-b border-slate-800 pb-2">
-                        <span><i class="fa-solid fa-chart-line text-emerald-400 mr-2"></i>CPI 通膨率：</span>
-                        <span class="font-semibold text-slate-100">溫和 (低於 2% 警戒區)</span>
-                    </li>
-                    <li class="flex justify-between border-b border-slate-800 pb-2">
-                        <span><i class="fa-solid fa-landmark text-emerald-400 mr-2"></i>央行重貼現率：</span>
-                        <span class="font-semibold text-emerald-300">2.00% (相對較低)</span>
-                    </li>
-                    <li class="flex justify-between">
-                        <span><i class="fa-solid fa-coins text-amber-400 mr-2"></i>新台幣 (TWD)：</span>
-                        <span class="font-semibold text-amber-400">相對承壓 / 振盪</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <section class="bg-slate-900 border border-slate-800 rounded-xl p-6">
-            <h2 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-diagram-project text-blue-400"></i>宏觀傳導流程圖 (Macroeconomic Pipeline)
+        <!-- 即時市場焦點指標 -->
+        <section class="bg-slate-900 border border-blue-500/30 rounded-xl p-6 shadow-xl">
+            <h2 class="text-xs font-semibold text-blue-400 tracking-wider uppercase mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-satellite-dish"></i> 即時外匯與市場基準 (Real-Time Market Data)
             </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-blue-400 mb-1">STAGE 01</div>
-                        <h3 class="font-bold text-slate-100 mb-2">通膨與利率決策</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">美台通膨差距促使央行政策分歧，美聯儲維持高利率，臺灣維持低利環境。</p>
+                <!-- 美元/台幣即時匯率 -->
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/60">
+                    <div class="text-xs text-slate-400">美元 / 新臺幣 (USD/TWD)</div>
+                    <div class="text-3xl font-extrabold text-amber-400 font-mono mt-2" id="usdtwd-rate">
+                        --.--
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-center text-blue-400 text-lg">
-                        <i class="fa-solid fa-scale-unbalanced"></i>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-blue-400 mb-1">STAGE 02</div>
-                        <h3 class="font-bold text-slate-100 mb-2">利差與匯率變動</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">美台利差擴大產生利差交易誘因，引發拋售台幣、買入美元之資金流向。</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-center text-amber-400 text-lg">
-                        <i class="fa-solid fa-right-left"></i>
+                    <div class="text-xs text-slate-500 mt-2 flex items-center justify-between">
+                        <span>來源：開放外匯 API</span>
+                        <span id="rate-status" class="text-emerald-400">連線中...</span>
                     </div>
                 </div>
 
-                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-blue-400 mb-1">STAGE 03</div>
-                        <h3 class="font-bold text-slate-100 mb-2">資本流向（Capital Flow）</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">外資提款台股、國人購入美債/美元定存，資金持續向美元避險資產集中。</p>
+                <!-- 美國利率狀態 -->
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/60">
+                    <div class="text-xs text-slate-400">美國聯邦基金利率目標區間</div>
+                    <div class="text-3xl font-extrabold text-blue-400 font-mono mt-2">
+                        3.50% - 3.75%
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-center text-emerald-400 text-lg">
-                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    <div class="text-xs text-slate-500 mt-2">
+                        聯準會 (Fed) 政策基準
                     </div>
                 </div>
 
-                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
-                    <div>
-                        <div class="text-xs font-bold text-blue-400 mb-1">STAGE 04</div>
-                        <h3 class="font-bold text-slate-100 mb-2">股市雙重影響</h3>
-                        <p class="text-xs text-slate-400 leading-relaxed">美股承擔融資成本壓力；台股短期面臨外資賣壓，長期受惠出口匯兌收益。</p>
+                <!-- 臺灣利率狀態 -->
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/60">
+                    <div class="text-xs text-slate-400">臺灣中央銀行重貼現率</div>
+                    <div class="text-3xl font-extrabold text-emerald-400 font-mono mt-2">
+                        2.00%
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-center text-purple-400 text-lg">
-                        <i class="fa-solid fa-chart-line"></i>
+                    <div class="text-xs text-slate-500 mt-2">
+                        中華民國中央銀行 (CBC) 政策基準
                     </div>
                 </div>
 
             </div>
         </section>
 
+        <!-- 美台現況對比卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 美國 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-6 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-flag-usa"></i>美國經濟體 (USA)
+                    </h2>
+                    <span class="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded">高利率觀察期</span>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex justify-between border-b border-slate-800 pb-2">
+                        <span><i class="fa-solid fa-arrow-trend-up text-red-400 mr-2"></i>CPI 通膨率：</span>
+                        <span class="font-semibold text-slate-100">約 2.5% ~ 2.8%</span>
+                    </li>
+                    <li class="flex justify-between border-b border-slate-800 pb-2">
+                        <span><i class="fa-solid fa-building-columns text-blue-400 mr-2"></i>美元資產吸引力：</span>
+                        <span class="font-semibold text-blue-300">高殖利率避險性</span>
+                    </li>
+                    <li class="flex justify-between">
+                        <span><i class="fa-solid fa-chart-pie text-emerald-400 mr-2"></i>資金流向：</span>
+                        <span class="font-semibold text-emerald-400">吸引全球資本回流</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 臺灣 -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-6 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot"></i>臺灣經濟體 (Taiwan)
+                    </h2>
+                    <span class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded">溫和中性</span>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-300">
+                    <li class="flex justify-between border-b border-slate-800 pb-2">
+                        <span><i class="fa-solid fa-chart-line text-emerald-400 mr-2"></i>CPI 通膨率：</span>
+                        <span class="font-semibold text-slate-100">約 1.8% (溫和受控)</span>
+                    </li>
+                    <li class="flex justify-between border-b border-slate-800 pb-2">
+                        <span><i class="fa-solid fa-landmark text-emerald-400 mr-2"></i>泰勒公式理論利率：</span>
+                        <span class="font-semibold text-emerald-300">2.45% ~ 2.95%</span>
+                    </li>
+                    <li class="flex justify-between">
+                        <span><i class="fa-solid fa-microchip text-amber-400 mr-2"></i>經濟支柱：</span>
+                        <span class="font-semibold text-amber-400">AI / 半導體出口強勁</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 視覺化傳導流程 -->
         <section class="bg-slate-900 border border-slate-800 rounded-xl p-6">
-            <h2 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-table-list text-emerald-400"></i>台股與出口業之正反面效應
+            <h2 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project text-blue-400"></i>宏觀傳導鏈與資本流向 (Macro Dynamic Chain)
             </h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-700 bg-slate-800/40">
-                            <th class="p-3 text-slate-300">面向</th>
-                            <th class="p-3 text-slate-300">正面影響 (Positive)</th>
-                            <th class="p-3 text-slate-300">負面衝擊 (Negative)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800 text-slate-300">
-                        <tr>
-                            <td class="p-3 font-semibold text-slate-200">外資資金面</td>
-                            <td class="p-3 text-slate-400">美聯儲降息預期升高時，外資將快速回流台股權值股。</td>
-                            <td class="p-3 text-red-300">高利差期間外資提款賣壓沉重，大盤指數震盪劇烈。</td>
-                        </tr>
-                        <tr>
-                            <td class="p-3 font-semibold text-slate-200">企業基本面</td>
-                            <td class="p-3 text-emerald-300">台幣相對弱勢提升半導體與電子業出口競爭力及毛利率。</td>
-                            <td class="p-3 text-slate-400">進口原物料與能源成本上升，增加部分內需企業成本。</td>
-                        </tr>
-                        <tr>
-                            <td class="p-3 font-semibold text-slate-200">散戶與投資人</td>
-                            <td class="p-3 text-emerald-300">配置美債 ETF 或美元定存可享有高額利息回報。</td>
-                            <td class="p-3 text-amber-300">若未來美元快速回檔，需承受潛在之匯兌損失。</td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700/80">
+                    <div class="text-xs font-bold text-blue-400 mb-1">01. 通膨與利差</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">美國與臺灣存在名目利差，維持「美高台低」資金收益環境。</p>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700/80">
+                    <div class="text-xs font-bold text-blue-400 mb-1">02. 外匯市場需求</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">市場拋售台幣並購入高利美元資產，驅動 USD/TWD 匯率變動。</p>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700/80">
+                    <div class="text-xs font-bold text-blue-400 mb-1">03. 跨國資本移動</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">外資與國人資金流向美元定存、美債，台股短期承受資金調節。</p>
+                </div>
+                <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700/80">
+                    <div class="text-xs font-bold text-blue-400 mb-1">04. 出口與企業獲利</div>
+                    <p class="text-xs text-slate-300 leading-relaxed">台幣適度貶值提升半導體等科技出口競爭力與帳面匯兌收益。</p>
+                </div>
             </div>
         </section>
 
     </main>
 
     <footer class="max-w-7xl mx-auto px-4 mt-8 text-center text-xs text-slate-500">
-        <p>美台總體經濟視覺化模組 &copy; 2026. 獨立單檔 Web 介面。</p>
+        <p>美台總體經濟即時監測系統 &copy; 2026. 自動整合實時外匯 API 與靜態經濟模型。</p>
     </footer>
 
+    <!-- JavaScript 動態抓取實時數據與時間戳 -->
+    <script>
+        async function loadLiveData() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            const rateElement = document.getElementById('usdtwd-rate');
+            const statusElement = document.getElementById('rate-status');
+            const timeElement = document.getElementById('update-timestamp');
+
+            // 按鈕旋轉動畫
+            refreshIcon.classList.add('fa-spin');
+            statusElement.innerText = '更新中...';
+
+            // 1. 更新當前系統時間 (年月日時分秒)
+            const now = new Date();
+            const formattedTime = `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            timeElement.innerText = `資料更新時間：${formattedTime}`;
+
+            // 2. 抓取即時外匯數據 (美元對新台幣 API)
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/USD');
+                if (!response.ok) throw new Error('網路回應錯誤');
+                
+                const data = await response.json();
+                const twdRate = data.rates.TWD;
+
+                if (twdRate) {
+                    rateElement.innerText = twdRate.toFixed(2);
+                    statusElement.innerText = '實時連線';
+                    statusElement.className = 'text-emerald-400';
+                } else {
+                    throw new Error('無法解析匯率');
+                }
+            } catch (error) {
+                console.error('抓取匯率失敗：', error);
+                rateElement.innerText = '32.15'; // 備用估算值
+                statusElement.innerText = '使用離線預估';
+                statusElement.className = 'text-amber-400';
+            } finally {
+                refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        // 頁面載入時自動執行一次
+        window.addEventListener('DOMContentLoaded', loadLiveData);
+    </script>
 </body>
 </html>
