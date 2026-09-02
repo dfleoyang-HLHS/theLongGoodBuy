@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kojiro MACD | 大循環指標分析</title>
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --secondary: #34495E;
+            --accent: #3498DB;
+            --bg-color: #F8F9FA;
+            --text-main: #333333;
+            --text-muted: #666666;
+            
+            --stage1: #27AE60; /* 綠 */
+            --stage2: #F1C40F; /* 黃 */
+            --stage3: #E67E22; /* 橘 */
+            --stage4: #E74C3C; /* 紅 */
+            --stage5: #9B59B6; /* 紫 */
+            --stage6: #2980B9; /* 藍 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* 導覽列 */
+        nav {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+        }
+
+        nav h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        nav h1 span {
+            color: var(--accent);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent);
+        }
+
+        /* 英雄區塊 */
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 6rem 5%;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #E0E0E0;
+        }
+
+        /* 內容區塊共用設定 */
+        .section {
+            padding: 5rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: var(--accent);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* 核心指標設計 */
+        .core-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .indicator-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        .indicator-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .indicator-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        /* 六大階段網格 */
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stage-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stage-header {
+            padding: 1rem;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .stage-body {
+            padding: 1.5rem;
+        }
+
+        .stage-body p {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .stage-body strong {
+            color: var(--primary);
+        }
+
+        /* 階段顏色配置 */
+        .s1 .stage-header { background-color: var(--stage1); }
+        .s2 .stage-header { background-color: var(--stage2); color: #333; }
+        .s3 .stage-header { background-color: var(--stage3); }
+        .s4 .stage-header { background-color: var(--stage4); }
+        .s5 .stage-header { background-color: var(--stage5); }
+        .s6 .stage-header { background-color: var(--stage6); }
+
+        /* 實戰技巧 */
+        .tactics {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-top: 3rem;
+        }
+        
+        .tactics ul {
+            list-style: none;
+        }
+
+        .tactics li {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .tactics li::before {
+            content: '★';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        /* 總經循環表格 */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #EEE;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background-color: #FAFAFA;
+        }
+
+        tr:hover {
+            background-color: #F0F4F8;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 2rem 5%;
+            margin-top: 5rem;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                display: none; /* 簡單版隱藏導覽列項目 */
+            }
+            .hero h2 {
+                font-size: 2.2rem;
+            }
+            .stages-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1>Kojiro <span>MACD</span></h1>
+        <ul>
+            <li><a href="#about">指標核心</a></li>
+            <li><a href="#stages">六大階段</a></li>
+            <li><a href="#macro">總經循環結合</a></li>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <h2>日本名師小次郎：大循環 MACD</h2>
+        <p>將「移動平均線大循環分析」延伸至 MACD 指標的進階分析工具。透過三條 EMA 差值的連動變化，精準捕捉趨勢轉折，提前預判市場的六大循環階段。</p>
+    </header>
+
+    <section id="about" class="section">
+        <h2 class="section-title">三條核心指標線與零軸</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-muted);">大循環 MACD 預設採用 5 EMA（短期）、20 EMA（中期）與 40 EMA（長期），並透過計算差值產生三組 MACD 動能線。</p>
+        
+        <div class="core-indicators">
+            <div class="indicator-card" style="border-color: #FF5252;">
+                <h3 style="color: #FF5252;">MACD 1 (短期動能)</h3>
+                <p><strong>公式：</strong>5 EMA - 20 EMA</p>
+                <p>反映市場最敏銳的短中期變化。當 MACD 1 率先突破或跌破零軸時，通常是下一個階段即將到來的「先知訊號」。</p>
+            </div>
+            
+            <div class="indicator-card" style="border-color: #FFC107;">
+                <h3 style="color: #F39C12;">MACD 2 (跨度動能)</h3>
+                <p><strong>公式：</strong>5 EMA - 40 EMA</p>
+                <p>短長期均線的差值。與 MACD 1 之間的間距稱為 <strong>Tasuki (肩帶)</strong>，間距放大代表短期動能與爆發力極強。</p>
+            </div>
+            
+            <div class="indicator-card" style="border-color: #2196F3;">
+                <h3 style="color: #2196F3;">MACD 3 (趨勢帶)</h3>
+                <p><strong>公式：</strong>20 EMA - 40 EMA</p>
+                <p>反映中長期大趨勢方向與強度。對應主圖上的「帶」，只要 MACD 3 穩定在零軸上方，多頭格局就不易改變。</p>
+            </div>
+        </div>
+
+        <div class="tactics">
+            <h3 style="color: var(--primary); margin-bottom: 1rem;">🔥 核心實戰看盤技巧</h3>
+            <ul>
+                <li><strong>昇龍形態 (のぼり龍)：</strong> 當 MACD 1 > MACD 2 > MACD 3，且三者同步向上發散時，為市場最強烈的多頭優勢 (Edge) 階段。</li>
+                <li><strong>Tasuki 擴張：</strong> MACD 1 與 MACD 2 之間的視覺化填色區域若迅速變寬，是順勢加碼的絕佳時機。</li>
+                <li><strong>領先均線交叉：</strong> 比起等待主圖上均線真正黃金交叉，觀察 MACD 線突破「零軸」能讓你更早一步佈局。</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="stages" class="section">
+        <h2 class="section-title">大循環的 6 個階段 (Stages)</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-muted);">當三條 MACD 線穿梭於「零軸 (Zero Line)」上下方時，完整對應了均線的 6 種排列組合。</p>
+        
+        <div class="stages-grid">
+            <div class="stage-card s1">
+                <div class="stage-header">
+                    <span>第 1 階段：安定上漲</span>
+                    <span>短 > 中 > 長</span>
+                </div>
+                <div class="stage-body">
+                    <p><strong>MACD 狀態：</strong> 1、2、3 全部高於零軸</p>
+                    <p><strong>說明：</strong> 最穩定、勝率最高的多頭階段。適合持有部位並尋找加碼機會。</p>
+                </div>
+            </div>
+
+            <div class="stage-card s2">
+                <div class="stage-header">
+                    <span>第 2 階段：上漲結束</span>
+                    <span>中 > 短 > 長</span>
+                </div>
+                <div class="stage-body">
+                    <p><strong>MACD 狀態：</strong> MACD 1 跌破零軸</p>
+                    <p><strong>說明：</strong> 短期動能轉弱，上漲可能結束，需開始警戒或部分獲利了結。</p>
+                </div>
+            </div>
+
+            <div class="stage-card s3">
+                <div class="stage-header">
+                    <span>第 3 階段：下跌入口</span>
+                    <span>中 > 長 > 短</span>
+                </div>
+                <div class="stage-body">
+                    <p><strong>MACD 狀態：</strong> MACD 1、2 跌破零軸</p>
+                    <p><strong>說明：</strong> 價格進一步跌破長期均線，空方勢力逐漸主導，準備進入跌勢。</p>
+                </div>
+            </div>
+
+            <div class="stage-card s4">
+                <div class="stage-header">
+                    <span>第 4 階段：安定下跌</span>
+                    <span>長 > 中 > 短</span>
+                </div>
+                <div class="stage-body">
+                    <p><strong>MACD 狀態：</strong> 1、2、3 全部低於零軸</p>
+                    <p><strong>說明：</strong> 最強烈的空頭排列，價格持續探底。嚴格避開多頭操作。</p>
+                </div>
+            </div>
+
+            <div class="stage-card s5">
+                <div class="stage-header">
+                    <span>第 5 階段：下跌結束</span>
+                    <span>長 > 短 > 中</span>
+                </div>
+                <div class="stage-body">
+                    <p><strong>MACD 狀態：</strong> MACD 1 突破零軸</p>
+                    <p><strong>說明：</strong> 跌勢放緩，短期開始反彈。屬於空頭末期的先知訊號。</p>
+                </div>
+            </div>
+
+            <div class="stage-card s6">
+                <div class="stage-header">
+                    <span>第 6 階段：上漲入口</span>
+                    <span>短 > 長 > 中</span>
+                </div>
+                <div class="stage-body">
+                    <p><strong>MACD 狀態：</strong> MACD 1、2 突破零軸</p>
+                    <p><strong>說明：</strong> 價格重新站上長期均線，多頭復甦的初升段，準備重新進入第 1 階段。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="macro" class="section">
+        <h2 class="section-title">結合總經與美林投資時鐘</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-muted);">大循環理論本質上是「動能與趨勢的循環」，能完美契合總體經濟學中的景氣循環模型。<br><b>總經決定資產配置方向，大循環 MACD 決定進出場時機。</b></p>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>大循環 6 階段</th>
+                        <th>景氣循環狀態</th>
+                        <th>美林投資時鐘</th>
+                        <th>優先配置資產</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>第 6 階段 (上漲入口)</strong></td>
+                        <td>谷底復甦 (Recovery)</td>
+                        <td>低通膨 + 經濟開始成長</td>
+                        <td>股票 (早週期股)、高收益債</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第 1 階段 (安定上漲)</strong></td>
+                        <td>繁榮擴張 (Expansion)</td>
+                        <td>高通膨 + 經濟強勁成長</td>
+                        <td>原物料、大宗商品、工業股</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第 2 階段 (上漲結束)</strong></td>
+                        <td>景氣頂峰 (Overheat)</td>
+                        <td>升息末期 + 成長放緩</td>
+                        <td>減碼高風險資產、轉向防守</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第 3 階段 (下跌入口)</strong></td>
+                        <td>景氣衰退 (Recession)</td>
+                        <td>成長停滯 + 通膨高企/下滑</td>
+                        <td>長期國債、防禦型股票</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第 4 階段 (安定下跌)</strong></td>
+                        <td>蕭條築底 (Contraction)</td>
+                        <td>低通膨 + 經濟衰退</td>
+                        <td>現金、美元、黃金避險</td>
+                    </tr>
+                    <tr>
+                        <td><strong>第 5 階段 (下跌結束)</strong></td>
+                        <td>衰退末期 (Late Recession)</td>
+                        <td>央行降息救市 + 降準</td>
+                        <td>預備佈局股票與信用債</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Kojiro MACD Analysis Guide. Built with Pine Script Concept.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: #BDC3C7;">免責聲明：此頁面僅作為技術分析理論交流與教學用途，不構成任何投資建議。</p>
+    </footer>
+
+</body>
+</html>
