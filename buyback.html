@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>回後買&盤整突破(Pine Script v6 )實盤旗艦版交易策略架構</title>
+    <title>Pine Script v6 實盤旗艦版交易策略架構 (美台雙 VIX 版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js CDN -->
@@ -16,10 +16,17 @@
     useStrategy1: true,
     useStrategy2: true,
     useVixFilter: true,
-    vixValue: 16.5,
+    vixMode: 'AND', // 'AND' 代表美台皆須合格，'OR' 代表任一合格即可
+    usVixValue: 16.5,
+    twVixValue: 15.2,
     vixThreshold: 20,
     copied: false,
-    get isVixPass() { return !this.useVixFilter || this.vixValue < this.vixThreshold },
+    get isUsVixPass() { return !this.useVixFilter || this.usVixValue < this.vixThreshold },
+    get isTwVixPass() { return !this.useVixFilter || this.twVixValue < this.vixThreshold },
+    get isVixPass() { 
+        if (!this.useVixFilter) return true;
+        return this.vixMode === 'AND' ? (this.isUsVixPass && this.isTwVixPass) : (this.isUsVixPass || this.isTwVixPass);
+    },
     get canStrategy1Trigger() { return this.useStrategy1 && this.isVixPass },
     get canStrategy2Trigger() { return this.useStrategy2 && this.isVixPass },
     copyCode() {
@@ -34,13 +41,13 @@
     <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded text-xs font-mono">v3.0 互動版</span>
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded text-xs font-mono">v3.5 美台雙VIX旗艦版</span>
                 <h1 class="text-lg font-bold tracking-wide">Pine v6 雙策略實盤架構</h1>
             </div>
-            <span class="text-xs text-slate-400 font-mono">適用標的：台股 / 美股多頭市場</span>
+            <span class="text-xs text-slate-400 font-mono">適用標的：台股 / 美股 / 台指期 / ADR</span>
         </div>
 
-        <!-- 增加導覽列 (Navigation Bar) -->
+        <!-- 導覽列 (Navigation Bar) -->
         <nav class="bg-slate-900/90 border-t border-slate-800/80 px-6 py-2 overflow-x-auto">
             <div class="max-w-7xl mx-auto flex items-center gap-2 text-xs font-medium whitespace-nowrap">
                 <a href="UT202609.html" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition">美台總體經濟與資金流向圖解分析</a>
@@ -54,15 +61,15 @@
 
     <main class="max-w-7xl mx-auto px-6 py-8 space-y-12">
 
-        <!-- 動態模擬控制台 (Alpine.js 控制核心) -->
+        <!-- 動態模擬控制台 (Alpine.js 美台雙 VIX 核心) -->
         <section class="bg-slate-800/80 border border-indigo-500/30 rounded-xl p-6 shadow-xl">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700/60 pb-4 mb-6 gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-indigo-300 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-                        策略模擬控制台 (Interactive Switch Controls)
+                        策略模擬控制台 (美台雙 VIX 風控升級)
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">開關個別策略與濾網，即時觀察條件變化與可觸發狀態。</p>
+                    <p class="text-xs text-slate-400 mt-1">獨立模擬美股 CBOE:VIX 與台股 TAIFEX:VI，觀察跨市場動態風控。</p>
                 </div>
                 <!-- 綜合觸發狀態燈 -->
                 <div class="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-lg border border-slate-800">
@@ -74,7 +81,7 @@
                     </template>
                     <template x-if="!canStrategy1Trigger && !canStrategy2Trigger">
                         <span class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-400">
-                            <span class="w-2 h-2 rounded-full bg-rose-400"></span> 暫停進場 (Paused)
+                            <span class="w-2 h-2 rounded-full bg-rose-400"></span> 恐慌避險/暫停 (Paused)
                         </span>
                     </template>
                 </div>
@@ -100,41 +107,60 @@
                     <input type="checkbox" x-model="useStrategy2" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
                 </label>
 
-                <!-- VIX 濾網開關與數值模擬 -->
-                <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-700/50 space-y-2">
+                <!-- 雙 VIX 濾網開關與判定邏輯 -->
+                <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-700/50 space-y-3">
                     <label class="flex items-center justify-between cursor-pointer">
                         <div>
-                            <div class="text-sm font-bold text-slate-200">VIX 恐慌濾網</div>
-                            <div class="text-xs text-slate-400 mt-0.5">useVixFilter (門檻 &lt; 20)</div>
+                            <div class="text-sm font-bold text-slate-200">美台雙 VIX 恐慌濾網</div>
+                            <div class="text-xs text-slate-400 mt-0.5">門檻 &lt; 20</div>
                         </div>
                         <input type="checkbox" x-model="useVixFilter" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
                     </label>
 
-                    <div x-show="useVixFilter" x-transition class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                        <span class="text-slate-400">當前 VIX 模擬值：<b x-text="vixValue" class="text-amber-300"></b></span>
-                        <button @click="vixValue = (vixValue === 16.5 ? 23.5 : 16.5)" 
-                                class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-mono">
-                            切換為 <span x-text="vixValue === 16.5 ? '23.5 (恐慌)' : '16.5 (正常)'"></span>
-                        </button>
+                    <!-- 當啟用 VIX 時展現邏輯與模擬按鈕 -->
+                    <div x-show="useVixFilter" x-transition class="pt-2 border-t border-slate-800 space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">風控條件：</span>
+                            <select x-model="vixMode" class="bg-slate-800 text-amber-300 border border-slate-700 rounded px-2 py-0.5 font-mono">
+                                <option value="AND">AND (美台皆須平穩)</option>
+                                <option value="OR">OR (任一市場平穩即可)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-slate-400">美股 CBOE:VIX：<b x-text="usVixValue" :class="isUsVixPass ? 'text-emerald-400' : 'text-rose-400'"></b></span>
+                            <button @click="usVixValue = (usVixValue === 16.5 ? 24.0 : 16.5)" 
+                                    class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-mono">
+                                切換為 <span x-text="usVixValue === 16.5 ? '24.0 (恐慌)' : '16.5 (正常)'"></span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-400">台股 TAIFEX:VI：<b x-text="twVixValue" :class="isTwVixPass ? 'text-emerald-400' : 'text-rose-400'"></b></span>
+                            <button @click="twVixValue = (twVixValue === 15.2 ? 22.8 : 15.2)" 
+                                    class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-mono">
+                                切換為 <span x-text="twVixValue === 15.2 ? '22.8 (恐慌)' : '15.2 (正常)'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 核心指標圖解區 -->
+        <!-- 美台雙 VIX 狀態展示區 -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
-                <div class="text-xs text-slate-400 font-medium">趨勢基底 (Trend Filter)</div>
-                <div class="text-lg font-bold text-emerald-400 mt-1">20 MA 多頭排列</div>
-                <div class="text-xs text-slate-500 mt-1">收盤 > 20MA 且 20MA > 5日前</div>
+                <div class="text-xs text-slate-400 font-medium">美股波動率 (CBOE:VIX)</div>
+                <div class="text-lg font-bold mt-1" :class="isUsVixPass ? 'text-amber-400' : 'text-rose-400'"
+                     x-text="useVixFilter ? usVixValue + (isUsVixPass ? ' (平穩)' : ' (恐慌高)') : '關閉'"></div>
+                <div class="text-xs text-slate-500 mt-1">美股整體避險情緒指數</div>
             </div>
 
-            <div class="bg-slate-800/50 border rounded-xl p-5 transition"
-                 :class="isVixPass ? 'border-amber-500/30' : 'border-rose-500/50 bg-rose-950/10'">
-                <div class="text-xs text-slate-400 font-medium">大盤濾網 (Market VIX)</div>
-                <div class="text-lg font-bold mt-1" :class="isVixPass ? 'text-amber-400' : 'text-rose-400'"
-                     x-text="useVixFilter ? (isVixPass ? 'VIX ' + vixValue + ' (安全)' : 'VIX ' + vixValue + ' (高於20恐慌)') : '濾網已停用'"></div>
-                <div class="text-xs text-slate-500 mt-1">採用 close[1] 無時間未來視角</div>
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
+                <div class="text-xs text-slate-400 font-medium">台股波動率 (TAIFEX:VI)</div>
+                <div class="text-lg font-bold mt-1" :class="isTwVixPass ? 'text-amber-400' : 'text-rose-400'"
+                     x-text="useVixFilter ? twVixValue + (isTwVixPass ? ' (平穩)' : ' (恐慌高)') : '關閉'"></div>
+                <div class="text-xs text-slate-500 mt-1">台指選擇權隱含波動率</div>
             </div>
 
             <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
@@ -142,6 +168,7 @@
                 <div class="text-lg font-bold text-purple-400 mt-1">前高點賣出 50%</div>
                 <div class="text-xs text-slate-500 mt-1">掛單 limit = 近10日最高點</div>
             </div>
+
             <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
                 <div class="text-xs text-slate-400 font-medium">防守停損 (Stop Loss)</div>
                 <div class="text-lg font-bold text-rose-400 mt-1">動態 Stop / Trailing</div>
@@ -177,8 +204,8 @@
                         </li>
                         <li class="flex items-start gap-2">
                             <span :class="isVixPass ? 'text-teal-400' : 'text-rose-400'">✓</span>
-                            <span><b>濾網驗證：</b> 
-                                <span x-text="isVixPass ? 'VIX 風控合格' : '受 VIX 恐慌攔截無法觸發'" :class="isVixPass ? 'text-slate-300' : 'text-rose-400 font-bold'"></span>
+                            <span><b>美台雙 VIX 驗證：</b> 
+                                <span x-text="isVixPass ? '雙股市風控合格' : '美台市場恐慌過高，拒絕進場'" :class="isVixPass ? 'text-slate-300' : 'text-rose-400 font-bold'"></span>
                             </span>
                         </li>
                     </ul>
@@ -217,7 +244,7 @@
         <section class="space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 完整 Pine Script v6 原始碼
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 完整 Pine Script v6 (美台雙 VIX 版) 原始碼
                 </h2>
                 <!-- 複製按鈕 -->
                 <button @click="copyCode()" 
@@ -239,11 +266,11 @@
             <!-- Code Container -->
             <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl relative">
                 <div class="bg-slate-900/80 px-4 py-2 border-b border-slate-800 text-xs font-mono text-slate-400 flex justify-between">
-                    <span>strategy_v3.pine</span>
+                    <span>strategy_dual_vix_v3.5.pine</span>
                     <span>Pine Script v6</span>
                 </div>
                 <pre id="pineCode" class="p-6 text-xs font-mono text-emerald-300 overflow-x-auto max-h-96 leading-relaxed select-all">//@version=6
-strategy("回後買上漲 + 盤整突破 雙策略 (Pine v6) - 實盤旗艦修正版 v3", overlay = true, initial_capital = 100000, default_qty_type = strategy.percent_of_equity, default_qty_value = 20, commission_type = strategy.commission.percent, commission_value = 0.2925, slippage = 1)
+strategy("回後買上漲 + 盤整突破 雙策略 (Pine v6) - 美台雙VIX實盤版 v3.5", overlay = true, initial_capital = 100000, default_qty_type = strategy.percent_of_equity, default_qty_value = 20, commission_type = strategy.commission.percent, commission_value = 0.2925, slippage = 1)
 
 // ============================================================================
 // 1. 輸入參數設定 (Inputs)
@@ -278,20 +305,28 @@ bool  useVolumeFilter = input.bool(false, title = "啟用成交量加強濾網",
 int   volMaLen        = input.int(5,     title = "成交量均線週期", minval = 1, group = "量能加強濾網")
 float volMult         = input.float(1.0, title = "成交量放大倍數", step = 0.1, group = "量能加強濾網")
 
-bool  useVixFilter  = input.bool(true,       title = "啟用 VIX 恐慌濾網", group = "濾網設定")
-string vixSymbol    = input.symbol("CBOE:VIX", title = "VIX 恐慌指數標的", group = "濾網設定")
-float vixThreshold  = input.float(20,        title = "VIX 恐慌門檻", step = 1, minval = 1, group = "濾網設定")
+// --- 美台雙 VIX 濾網設定 ---
+bool   useVixFilter = input.bool(true,        title = "啟用 VIX 恐慌濾網", group = "雙VIX濾網設定")
+string usVixSymbol  = input.symbol("CBOE:VIX", title = "美股 VIX 標的", group = "雙VIX濾網設定")
+string twVixSymbol  = input.symbol("TAIFEX:VI",title = "台股 VIX 標的", group = "雙VIX濾網設定")
+float  vixThreshold = input.float(20,         title = "VIX 恐慌門檻 (高於此值暫停進場)", step = 1, minval = 1, group = "雙VIX濾網設定")
+string vixLogic     = input.string("AND",     title = "雙VIX判定條件", options = ["AND", "OR"], group = "雙VIX濾網設定", tooltip = "AND: 美台皆須低於門檻才進場；OR: 任一低於門檻即可進場")
 
 // ============================================================================
-// 2. 指標計算與歷史資料讀取 (Indicators)
+// 2. 指標計算與歷史資料讀取 (美台雙 VIX)
 // ============================================================================
 series float ma5   = ta.sma(close, ma5Len)
 series float ma20  = ta.sma(close, ma20Len)
 series float volMa = ta.sma(volume, volMaLen)
 
-// 使用 close[1] 搭配 lookahead_on 避免跨商品未來視角
-float vixValue  = request.security(vixSymbol, timeframe.period, close[1], lookahead = barmerge.lookahead_on)
-bool  isVixCalm = not useVixFilter or vixValue < vixThreshold
+// 使用 close[1] 搭配 lookahead_on 避免跨商品未來視角 (美股 + 台股)
+float usVixValue = request.security(usVixSymbol, timeframe.period, close[1], lookahead = barmerge.lookahead_on)
+float twVixValue = request.security(twVixSymbol, timeframe.period, close[1], lookahead = barmerge.lookahead_on)
+
+bool isUsVixCalm = usVixValue < vixThreshold
+bool isTwVixCalm = twVixValue < vixThreshold
+
+bool isVixCalm = not useVixFilter or (vixLogic == "AND" ? (isUsVixCalm and isTwVixCalm) : (isUsVixCalm or isTwVixCalm))
 bool isVolumeConfirmed = not useVolumeFilter or volume > (volMa * volMult)
 
 // 多頭趨勢判斷
@@ -368,7 +403,7 @@ if (strategy.position_size > 0)
     </main>
 
     <footer class="border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-xs font-mono">
-        TradingView Pine Script v6 Strategy Architecture Dashboard
+        TradingView Pine Script v6 Strategy Architecture Dashboard (Dual VIX Edition)
     </footer>
 
 </body>
