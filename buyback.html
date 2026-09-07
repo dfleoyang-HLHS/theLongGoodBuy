@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pine Script v6 實盤旗艦版交易策略架構</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen" x-data="{
+    useStrategy1: true,
+    useStrategy2: true,
+    useVixFilter: true,
+    vixValue: 16.5,
+    vixThreshold: 20,
+    get isVixPass() { return !this.useVixFilter || this.vixValue < this.vixThreshold },
+    get canStrategy1Trigger() { return this.useStrategy1 && this.isVixPass },
+    get canStrategy2Trigger() { return this.useStrategy2 && this.isVixPass }
+}">
+
+    <!-- Header / Banner -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded text-xs font-mono">v3.0 互動版</span>
+                <h1 class="text-xl font-bold tracking-wide">Pine v6 雙策略實盤架構圖解</h1>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">適用標的：台股 / 美股多頭市場</span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-12">
+
+        <!-- 動態模擬控制台 (Alpine.js 控制核心) -->
+        <section class="bg-slate-800/80 border border-indigo-500/30 rounded-xl p-6 shadow-xl">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700/60 pb-4 mb-6 gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-indigo-300 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                        策略模擬控制台 (Interactive Switch Controls)
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">開關個別策略與濾網，即時觀察條件變化與可觸發狀態。</p>
+                </div>
+                <!-- 綜合觸發狀態燈 -->
+                <div class="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-lg border border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">策略引擎狀態：</span>
+                    <template x-if="canStrategy1Trigger || canStrategy2Trigger">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 準備接單 (Active)
+                        </span>
+                    </template>
+                    <template x-if="!canStrategy1Trigger && !canStrategy2Trigger">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-400">
+                            <span class="w-2 h-2 rounded-full bg-rose-400"></span> 暫停進場 (Paused)
+                        </span>
+                    </template>
+                </div>
+            </div>
+
+            <!-- 控制卡片與開關 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 策略 1 開關 -->
+                <label class="flex items-center justify-between p-4 bg-slate-900/60 rounded-lg border border-slate-700/50 cursor-pointer hover:border-slate-600 transition">
+                    <div>
+                        <div class="text-sm font-bold text-slate-200">策略 1：盤整突破</div>
+                        <div class="text-xs text-slate-400 mt-0.5">useStrategy1</div>
+                    </div>
+                    <input type="checkbox" x-model="useStrategy1" class="w-5 h-5 accent-teal-500 rounded cursor-pointer">
+                </label>
+
+                <!-- 策略 2 開關 -->
+                <label class="flex items-center justify-between p-4 bg-slate-900/60 rounded-lg border border-slate-700/50 cursor-pointer hover:border-slate-600 transition">
+                    <div>
+                        <div class="text-sm font-bold text-slate-200">策略 2：回後買上漲</div>
+                        <div class="text-xs text-slate-400 mt-0.5">useStrategy2</div>
+                    </div>
+                    <input type="checkbox" x-model="useStrategy2" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer">
+                </label>
+
+                <!-- VIX 濾網開關與數值模擬 -->
+                <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-700/50 space-y-2">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <div>
+                            <div class="text-sm font-bold text-slate-200">VIX 恐慌濾網</div>
+                            <div class="text-xs text-slate-400 mt-0.5">useVixFilter (門檻 &lt; 20)</div>
+                        </div>
+                        <input type="checkbox" x-model="useVixFilter" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
+                    </label>
+
+                    <!-- 當啟用 VIX 時可調測當前 VIX 值 -->
+                    <div x-show="useVixFilter" x-transition class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+                        <span class="text-slate-400">當前 VIX 模擬值：<b x-text="vixValue" class="text-amber-300"></b></span>
+                        <button @click="vixValue = (vixValue === 16.5 ? 23.5 : 16.5)" 
+                                class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] border border-slate-700 font-mono">
+                            切換為 <span x-text="vixValue === 16.5 ? '23.5 (恐慌)' : '16.5 (正常)'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1. 策略核心總覽 -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
+                <div class="text-xs text-slate-400 font-medium">趨勢基底 (Trend Filter)</div>
+                <div class="text-lg font-bold text-emerald-400 mt-1">20 MA 多頭排列</div>
+                <div class="text-xs text-slate-500 mt-1">收盤 > 20MA 且 20MA > 5日前</div>
+            </div>
+
+            <!-- VIX 動態狀態指標卡片 -->
+            <div class="bg-slate-800/50 border rounded-xl p-5 transition"
+                 :class="isVixPass ? 'border-amber-500/30' : 'border-rose-500/50 bg-rose-950/10'">
+                <div class="text-xs text-slate-400 font-medium">大盤濾網 (Market VIX)</div>
+                <div class="text-lg font-bold mt-1" :class="isVixPass ? 'text-amber-400' : 'text-rose-400'"
+                     x-text="useVixFilter ? (isVixPass ? 'VIX ' + vixValue + ' (安全)' : 'VIX ' + vixValue + ' (高於20恐慌)') : '濾網已停用'"></div>
+                <div class="text-xs text-slate-500 mt-1">採用 close[1] 無時間未來視角</div>
+            </div>
+
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
+                <div class="text-xs text-slate-400 font-medium">分批停利 (Take Profit)</div>
+                <div class="text-lg font-bold text-purple-400 mt-1">前高點賣出 50%</div>
+                <div class="text-xs text-slate-500 mt-1">掛單 limit = 近10日最高點</div>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
+                <div class="text-xs text-slate-400 font-medium">防守停損 (Stop Loss)</div>
+                <div class="text-lg font-bold text-rose-400 mt-1">動態 Stop / Trailing</div>
+                <div class="text-xs text-slate-500 mt-1">Max( 3日最低價, 3.5% 移動停利 )</div>
+            </div>
+        </section>
+
+        <!-- 2. 雙核心進場策略 (動態渲染狀態) -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-500"></span> 雙進場邏輯核心 (Dual Entry Logic)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- 策略 1 卡片 -->
+                <div class="bg-slate-800/40 border rounded-xl p-6 relative overflow-hidden transition"
+                     :class="canStrategy1Trigger ? 'border-teal-500/40' : 'border-slate-800 opacity-50'">
+                    <div class="absolute top-0 right-0 text-xs px-3 py-1 rounded-bl border-b border-l font-mono"
+                         :class="useStrategy1 ? 'bg-teal-500/20 text-teal-300 border-teal-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'">
+                        <span x-text="useStrategy1 ? '策略已啟用' : '策略已關閉'"></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-teal-300 mb-2">策略 1：盤整強勢突破</h3>
+                    <p class="text-xs text-slate-400 mb-4">適用於沉寂一段時間後，擠壓釋放爆發能量的強勢股。</p>
+
+                    <ul class="space-y-2.5 text-xs text-slate-300 font-mono">
+                        <li class="flex items-start gap-2">
+                            <span class="text-teal-400">✓</span>
+                            <span><b>區間緊密：</b> 近 20 日價格波幅 ((High-Low)/Low) &le; 8%</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-teal-400">✓</span>
+                            <span><b>突破前高：</b> 今日收盤價 &gt; 近 20 日區間最高價</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span :class="isVixPass ? 'text-teal-400' : 'text-rose-400'">✓</span>
+                            <span><b>濾網驗證：</b> 
+                                <span x-text="isVixPass ? 'VIX 風控合格' : '受 VIX 恐慌攔截無法觸發'" :class="isVixPass ? 'text-slate-300' : 'text-rose-400 font-bold'"></span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 策略 2 卡片 -->
+                <div class="bg-slate-800/40 border rounded-xl p-6 relative overflow-hidden transition"
+                     :class="canStrategy2Trigger ? 'border-emerald-500/40' : 'border-slate-800 opacity-50'">
+                    <div class="absolute top-0 right-0 text-xs px-3 py-1 rounded-bl border-b border-l font-mono"
+                         :class="useStrategy2 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'">
+                        <span x-text="useStrategy2 ? '策略已啟用' : '策略已關閉'"></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-emerald-300 mb-2">策略 2：回後買上漲</h3>
+                    <p class="text-xs text-slate-400 mb-4">適用於多頭趨勢確立後，拉回支撐點位重啟漲勢的買點。</p>
+
+                    <ul class="space-y-2.5 text-xs text-slate-300 font-mono">
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400">✓</span>
+                            <span><b>支撐不破：</b> 未跌破前低與月線 (允許 1.0% 支撐容忍度)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400">✓</span>
+                            <span><b>重新站回：</b> 近 5 日曾跌破 5MA，今日收盤重新站回 5MA</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400">✓</span>
+                            <span><b>強勢動能：</b> 出現收紅 K 且單日漲幅 &ge; 2.0% 的攻擊訊號</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. 風控與持倉生命週期 -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span> 風控與持倉生命週期 (Trade Lifecycle)
+            </h2>
+            
+            <div class="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+                    
+                    <div class="space-y-2">
+                        <div class="text-rose-400 font-bold border-b border-rose-500/20 pb-1">1. 初始防守 (Initial Risk)</div>
+                        <p class="text-slate-400 leading-relaxed">
+                            進場當下即鎖定近 3 日最低價作為初始停損點 <code class="text-rose-300">stopLossPrice</code>。
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="text-purple-400 font-bold border-b border-purple-500/20 pb-1">2. 達標減碼 (Partial Profit)</div>
+                        <p class="text-slate-400 leading-relaxed">
+                            當觸及近 10 日最高價 <code class="text-purple-300">takeProfitHigh</code>，自動掛限價單平倉 <b>50%</b> 部位，實現獲利落袋。
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="text-blue-400 font-bold border-b border-blue-500/20 pb-1">3. 動態防守與全退 (Full Exit)</div>
+                        <p class="text-slate-400 leading-relaxed">
+                            剩餘部位啟動 3.5% 移動停利 <code class="text-blue-300">trailingStop</code>。若收盤跌破 20MA 則市價全數清倉離場。
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-xs font-mono">
+        TradingView Pine Script v6 Strategy Architecture Dashboard (Powered by Alpine.js & Tailwind CSS)
+    </footer>
+
+</body>
+</html>
