@@ -18,20 +18,38 @@
     useVixFilter: true,
     vixValue: 16.5,
     vixThreshold: 20,
+    copied: false,
     get isVixPass() { return !this.useVixFilter || this.vixValue < this.vixThreshold },
     get canStrategy1Trigger() { return this.useStrategy1 && this.isVixPass },
-    get canStrategy2Trigger() { return this.useStrategy2 && this.isVixPass }
+    get canStrategy2Trigger() { return this.useStrategy2 && this.isVixPass },
+    copyCode() {
+        const codeText = document.getElementById('pineCode').innerText;
+        navigator.clipboard.writeText(codeText);
+        this.copied = true;
+        setTimeout(() => this.copied = false, 2000);
+    }
 }">
 
-    <!-- Header / Banner -->
-    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <!-- Top Header -->
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded text-xs font-mono">v3.0 互動版</span>
-                <h1 class="text-xl font-bold tracking-wide">Pine v6 雙策略實盤架構圖解</h1>
+                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded text-xs font-mono">v3.0 互動版</span>
+                <h1 class="text-lg font-bold tracking-wide">Pine v6 雙策略實盤架構</h1>
             </div>
             <span class="text-xs text-slate-400 font-mono">適用標的：台股 / 美股多頭市場</span>
         </div>
+
+        <!-- 增加導覽列 (Navigation Bar) -->
+        <nav class="bg-slate-900/90 border-t border-slate-800/80 px-6 py-2 overflow-x-auto">
+            <div class="max-w-7xl mx-auto flex items-center gap-2 text-xs font-medium whitespace-nowrap">
+                <a href="UT202609.html" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition">美台總體經濟與資金流向圖解分析</a>
+                <a href="Kojiro_MACD.html" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition">小次郎MACD</a>
+                <a href="BigCycle_MACD.html" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition">大循環MACD</a>
+                <a href="buyback.html" class="px-3 py-1.5 rounded-md text-teal-400 bg-teal-500/10 border border-teal-500/30 transition">回後買&盤整突破</a>
+                <a href="index.html" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition border border-slate-700/50">回首頁</a>
+            </div>
+        </nav>
     </header>
 
     <main class="max-w-7xl mx-auto px-6 py-8 space-y-12">
@@ -92,7 +110,6 @@
                         <input type="checkbox" x-model="useVixFilter" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
                     </label>
 
-                    <!-- 當啟用 VIX 時可調測當前 VIX 值 -->
                     <div x-show="useVixFilter" x-transition class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
                         <span class="text-slate-400">當前 VIX 模擬值：<b x-text="vixValue" class="text-amber-300"></b></span>
                         <button @click="vixValue = (vixValue === 16.5 ? 23.5 : 16.5)" 
@@ -104,7 +121,7 @@
             </div>
         </section>
 
-        <!-- 1. 策略核心總覽 -->
+        <!-- 核心指標圖解區 -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
                 <div class="text-xs text-slate-400 font-medium">趨勢基底 (Trend Filter)</div>
@@ -112,7 +129,6 @@
                 <div class="text-xs text-slate-500 mt-1">收盤 > 20MA 且 20MA > 5日前</div>
             </div>
 
-            <!-- VIX 動態狀態指標卡片 -->
             <div class="bg-slate-800/50 border rounded-xl p-5 transition"
                  :class="isVixPass ? 'border-amber-500/30' : 'border-rose-500/50 bg-rose-950/10'">
                 <div class="text-xs text-slate-400 font-medium">大盤濾網 (Market VIX)</div>
@@ -133,7 +149,7 @@
             </div>
         </section>
 
-        <!-- 2. 雙核心進場策略 (動態渲染狀態) -->
+        <!-- 雙進場邏輯 -->
         <section class="space-y-4">
             <h2 class="text-xl font-bold flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-indigo-500"></span> 雙進場邏輯核心 (Dual Entry Logic)
@@ -197,44 +213,162 @@
             </div>
         </section>
 
-        <!-- 3. 風控與持倉生命週期 -->
+        <!-- 一鍵複製 Pine Script 完整程式碼區塊 -->
         <section class="space-y-4">
-            <h2 class="text-xl font-bold flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-rose-500"></span> 風控與持倉生命週期 (Trade Lifecycle)
-            </h2>
-            
-            <div class="bg-slate-800/30 border border-slate-700/50 rounded-xl p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-                    
-                    <div class="space-y-2">
-                        <div class="text-rose-400 font-bold border-b border-rose-500/20 pb-1">1. 初始防守 (Initial Risk)</div>
-                        <p class="text-slate-400 leading-relaxed">
-                            進場當下即鎖定近 3 日最低價作為初始停損點 <code class="text-rose-300">stopLossPrice</code>。
-                        </p>
-                    </div>
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 完整 Pine Script v6 原始碼
+                </h2>
+                <!-- 複製按鈕 -->
+                <button @click="copyCode()" 
+                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-lg">
+                    <template x-if="!copied">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            複製 Pine Script 程式碼
+                        </span>
+                    </template>
+                    <template x-if="copied">
+                        <span class="flex items-center gap-1.5 text-white">
+                            ✓ 已成功複製到剪貼簿！
+                        </span>
+                    </template>
+                </button>
+            </div>
 
-                    <div class="space-y-2">
-                        <div class="text-purple-400 font-bold border-b border-purple-500/20 pb-1">2. 達標減碼 (Partial Profit)</div>
-                        <p class="text-slate-400 leading-relaxed">
-                            當觸及近 10 日最高價 <code class="text-purple-300">takeProfitHigh</code>，自動掛限價單平倉 <b>50%</b> 部位，實現獲利落袋。
-                        </p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="text-blue-400 font-bold border-b border-blue-500/20 pb-1">3. 動態防守與全退 (Full Exit)</div>
-                        <p class="text-slate-400 leading-relaxed">
-                            剩餘部位啟動 3.5% 移動停利 <code class="text-blue-300">trailingStop</code>。若收盤跌破 20MA 則市價全數清倉離場。
-                        </p>
-                    </div>
-
+            <!-- Code Container -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl relative">
+                <div class="bg-slate-900/80 px-4 py-2 border-b border-slate-800 text-xs font-mono text-slate-400 flex justify-between">
+                    <span>strategy_v3.pine</span>
+                    <span>Pine Script v6</span>
                 </div>
+                <pre id="pineCode" class="p-6 text-xs font-mono text-emerald-300 overflow-x-auto max-h-96 leading-relaxed select-all">//@version=6
+strategy("回後買上漲 + 盤整突破 雙策略 (Pine v6) - 實盤旗艦修正版 v3", overlay = true, initial_capital = 100000, default_qty_type = strategy.percent_of_equity, default_qty_value = 20, commission_type = strategy.commission.percent, commission_value = 0.2925, slippage = 1)
+
+// ============================================================================
+// 1. 輸入參數設定 (Inputs)
+// ============================================================================
+bool useDateFilter = input.bool(true,       title = "啟用回測時間區間篩選", group = "回測時間設定")
+int startDate      = input.time(timestamp("2023-01-01 00:00 +0000"), title = "開始時間", group = "回測時間設定")
+int endDate        = input.time(timestamp("2026-12-31 23:59 +0000"), title = "結束時間", group = "回測時間設定")
+
+bool inDateRange = not useDateFilter or (time >= startDate and time <= endDate)
+
+bool useStrategy1 = input.bool(true, title = "啟用策略1 (盤整突破)", group = "策略開關")
+bool useStrategy2 = input.bool(true, title = "啟用策略2 (回後買上漲)", group = "策略開關")
+
+int ma5Len          = input.int(5,     title = "短均線 (5 MA)", minval = 1, group = "均線設定")
+int ma20Len         = input.int(20,    title = "月線 (20 MA)", minval = 1, group = "均線設定")
+int trendLookback   = input.int(5,     title = "趨勢判斷回溯天數", minval = 2, group = "均線設定")
+
+int lookbackLow     = input.int(3,     title = "停損防守 K 線數", minval = 1, group = "停損設定")
+int lookbackHigh    = input.int(10,    title = "前高壓力區回溯 K 棒數", minval = 2, group = "停利設定")
+float trailPerc     = input.float(3.5, title = "移動停利拉回百分比 (%)", step = 0.5, group = "停利設定")
+
+int   consolidationLookback         = input.int(20,  title = "盤整區間回溯K棒數", minval = 5, group = "策略1-盤整突破設定")
+float consolidationTightnessPercent = input.float(8, title = "盤整區間寬度上限(%)", step = 0.5, minval = 1, group = "策略1-盤整突破設定")
+
+int   dipLookbackBars       = input.int(5,   title = "回檔觀察期間", minval = 1, group = "策略2-回後買上漲設定")
+int   swingLeftBars         = input.int(5,   title = "前低偵測-左側K棒數", minval = 1, group = "策略2-回後買上漲設定")
+int   swingRightBars        = input.int(5,   title = "前低偵測-右側確認K棒數", minval = 1, group = "策略2-回後買上漲設定")
+float ma20UndershootPercent = input.float(1.0, title = "20MA支撐容忍度 (%)", step = 0.5, minval = 0, group = "策略2-回後買上漲設定")
+float gainThresholdPercent  = input.float(2.0, title = "進場訊號紅K最小漲幅 (%)", step = 0.5, minval = 0, group = "策略2-回後買上漲設定")
+
+bool  useVolumeFilter = input.bool(false, title = "啟用成交量加強濾網", group = "量能加強濾網")
+int   volMaLen        = input.int(5,     title = "成交量均線週期", minval = 1, group = "量能加強濾網")
+float volMult         = input.float(1.0, title = "成交量放大倍數", step = 0.1, group = "量能加強濾網")
+
+bool  useVixFilter  = input.bool(true,       title = "啟用 VIX 恐慌濾網", group = "濾網設定")
+string vixSymbol    = input.symbol("CBOE:VIX", title = "VIX 恐慌指數標的", group = "濾網設定")
+float vixThreshold  = input.float(20,        title = "VIX 恐慌門檻", step = 1, minval = 1, group = "濾網設定")
+
+// ============================================================================
+// 2. 指標計算與歷史資料讀取 (Indicators)
+// ============================================================================
+series float ma5   = ta.sma(close, ma5Len)
+series float ma20  = ta.sma(close, ma20Len)
+series float volMa = ta.sma(volume, volMaLen)
+
+// 使用 close[1] 搭配 lookahead_on 避免跨商品未來視角
+float vixValue  = request.security(vixSymbol, timeframe.period, close[1], lookahead = barmerge.lookahead_on)
+bool  isVixCalm = not useVixFilter or vixValue < vixThreshold
+bool isVolumeConfirmed = not useVolumeFilter or volume > (volMa * volMult)
+
+// 多頭趨勢判斷
+bool isBullTrend = close > ma20 and ma20 > ma20[trendLookback]
+
+// ============================================================================
+// 3. 策略條件
+// ============================================================================
+// 【策略1】盤整突破
+float rangeHigh = ta.highest(high, consolidationLookback)[1]
+float rangeLow  = ta.lowest(low, consolidationLookback)[1]
+bool  isConsolidating   = (rangeHigh - rangeLow) / rangeLow * 100 <= consolidationTightnessPercent
+bool  breakoutAboveRange = close > rangeHigh
+bool strategy1Condition = useStrategy1 and isBullTrend and isConsolidating and breakoutAboveRange
+
+// 【策略2】回後買上漲
+float pivotLowRaw = ta.pivotlow(swingLeftBars, swingRightBars)
+var float lastConfirmedSwingLow = na
+if not na(pivotLowRaw)
+    lastConfirmedSwingLow := pivotLowRaw
+
+bool notBreakPriorLow = na(lastConfirmedSwingLow) or ta.lowest(low, dipLookbackBars) >= lastConfirmedSwingLow
+bool notBreakMa20 = ta.lowest(low, dipLookbackBars) >= ma20 * (1 - ma20UndershootPercent / 100)
+bool wasBelow5MARecently = ta.barssince(close < ma5) <= dipLookbackBars
+bool reclaim5MA = close > ma5 and wasBelow5MARecently
+float pctChangeToday = (close - close[1]) / close[1] * 100
+bool  strongRedCandle = close > open and pctChangeToday >= gainThresholdPercent
+bool strategy2Condition = useStrategy2 and isBullTrend and notBreakPriorLow and notBreakMa20 and reclaim5MA and strongRedCandle
+
+// 綜合進場條件
+bool buyConditionStrategy1 = strategy1Condition and isVolumeConfirmed and isVixCalm and inDateRange
+bool buyConditionStrategy2 = strategy2Condition and isVolumeConfirmed and isVixCalm and inDateRange
+bool buyCondition          = buyConditionStrategy1 or buyConditionStrategy2
+
+// ============================================================================
+// 4. 策略進出場執行邏輯
+// ============================================================================
+series float lowestLow   = ta.lowest(low, lookbackLow)
+series float highestHigh = ta.highest(high, lookbackHigh)
+
+var float  stopLossPrice       = na
+var float  takeProfitHigh      = na
+var float  maxPostHigh         = na
+var float  trailingStop        = na
+var bool   tpTaken             = false
+
+if (buyCondition and strategy.position_size == 0)
+    stopLossPrice       := lowestLow
+    takeProfitHigh      := highestHigh[1]
+    maxPostHigh         := high
+    trailingStop        := high * (1 - trailPerc / 100)
+    tpTaken             := false
+    strategy.entry("Long", strategy.long)
+
+if (strategy.position_size > 0)
+    if (high > maxPostHigh)
+        maxPostHigh  := high
+        trailingStop := maxPostHigh * (1 - trailPerc / 100)
+
+    if (not tpTaken and strategy.position_size[1] > strategy.position_size)
+        tpTaken := true
+
+    if (close < ma20)
+        strategy.close("Long", comment = "跌破 20 MA 離場")
+
+if (strategy.position_size > 0)
+    float combinedStop = math.max(stopLossPrice, trailingStop)
+    strategy.exit("保護停損", from_entry = "Long", stop = combinedStop)
+    if (not tpTaken)
+        strategy.exit("前高停利", from_entry = "Long", qty_percent = 50, limit = takeProfitHigh)</pre>
             </div>
         </section>
 
     </main>
 
     <footer class="border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-xs font-mono">
-        TradingView Pine Script v6 Strategy Architecture Dashboard (Powered by Alpine.js & Tailwind CSS)
+        TradingView Pine Script v6 Strategy Architecture Dashboard
     </footer>
 
 </body>
